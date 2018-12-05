@@ -6,6 +6,8 @@
         <meta name="description" content="CSE383 Group Project - BRsquared">
         <meta name="uid1" content="ruthrab">
         <meta name="uid2" content="ralstobj">
+        <link rel="stylesheet" type="text/css" href="br_main.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/css/bootstrap.min.css" />
     </head>
     
     <body>
@@ -13,5 +15,25 @@
             <H1>BR Squared</H1>
             <p>CSE 383 - Group Project</p>
         </div>
+        <div>
+            <div class="alert alert-danger" role="alert" id="alert">
+                Incorrect username or password.
+            </div>
+            <h2>Please authenticate</h2>
+            <form method='get' class="form-inline" action="">
+                    <div class="form-group">
+                      <label for="user">User</label>
+                      <input type="text" class="form-control" id="user" placeholder="test" name="user">
+                    </div>
+                    <div class="form-group">
+                      <label for="password">Password</label>
+                      <input type="password" class="form-control" id="password" placeholder="Password" name="password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script src="br_main.js"></script>
     </body>
 </html>

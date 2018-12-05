@@ -1,1 +1,3 @@
-// The Javascript used in the BRsquared project
+$(document).ready(function(){
+    $("#alert").hide();
+});
