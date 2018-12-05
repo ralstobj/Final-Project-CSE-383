@@ -2,8 +2,6 @@
 <?php
 // The data model for the BRsquared Project
 
-$mysqli = connectToDataBase();                          // create connection to database
-
 function getData($a) {
     $ret = array("data"=>strlen($a));
     return $ret;
@@ -34,13 +32,14 @@ Database:
 
 // check if the provided user and password are correct
 function isUserAuth($user, $pass) {
-    // the SQL query for the info we want
-    $pass = password_hash($pass);
+    $mysqli = connectToDataBase();                          // create connection to database
+    $pass = password_hash($pass, PASSWORD_DEFAULT);
     $isAuth = FALSE;
 
+    // the SQL query for the info we want
     $theSQLstring = "SELECT pk
-                     from users
-                     where user='". $user ."' AND password='". $pass ."'";
+                     FROM users
+                     WHERE user='". $user ."' AND password='". $pass ."'";
 
     $res = mysqli_query($mysqli, $theSQLstring);            // run and hold the results of the sql query
 
@@ -51,6 +50,7 @@ function isUserAuth($user, $pass) {
         $isAuth = TRUE;
     }
 
+    mysqli_close($mysqli);
     return $isAuth;
 }
 
@@ -78,14 +78,15 @@ function connectToDataBase() {
 
 // will generate a token for a valid user and add it to the tokens table
 function genToken($user) {
-    // generate a random user token to be stored in the data base
-    $token = random_str(42);
+    $mysqli = connectToDataBase();                          // create connection to database
+    $token = random_str(42);                                // generate a random user token to be stored in the data base
 
     // add the token to the table
     $theSQLstring = "INSERT INTO tokens (user, token)
                      VALUES ('". $user ."', '". $token ."')";
 
-    mysqli_query($mysqli, $theSQLstring);            // run and hold the results of the sql query
+    mysqli_query($mysqli, $theSQLstring);                   // run the sql query
+    mysqli_close($mysqli);                                  // close connection to database
 
     // then return the token as a string
     return $token;

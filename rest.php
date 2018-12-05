@@ -70,11 +70,11 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
     // we were provided a user and password now we check if they are good
     if isUserAuth($user, $pass) {
         // generate and return the token
-        $ret = array('status'=>'OK','msg'=>'','token'=> getToken($jsonData['user']) );
+        $ret = array('status'=>'OK','msg'=>'','token'=> genToken($jsonData['user']) );
         retJson($ret);
     }
 
-    $ret = array('status'=>'FAIL', 'msg' =>'Username and Password not found','token'=>'');
+    $ret = array('status'=>'FAIL', 'msg' =>'Username and Password not Found','token'=>'');
     retJson($ret);
 }
 
@@ -144,12 +144,6 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
     ■	test
         ●	curl -X 'POST' -d '{"token":"1db4342013a7c7793edd72c249893a6a095bca71","itemFK":2}' https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items
 */
-}
-
-
-function genToken() {
-    // creat a user token to be stored in the data base
-    // then pass the token to the model to store it
 }
 
 ?>
