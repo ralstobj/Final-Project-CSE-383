@@ -1,5 +1,19 @@
 $(document).ready(function(){
     $("#alert").hide();
+    $('#form').on('submit', function(e) {
+        if(checkAll() == false){
+         e.preventDefault(); 
+         } else {
+            validateIdentity();
+         }
+    });
+    $("#user").change(function(){
+        checkUserName();
+    });
+    $("#password").change(function(){
+        checkPassword();
+    });
+
 });
 
 function validateIdentity() {
@@ -18,8 +32,41 @@ function validateIdentity() {
             },
             error: function(e){
                 console.log(e.message);
+                $("#alert").text("Incorrect username or password.");
                 $("#alert").show();
             }
     });
 }
+function checkUserName(){
+    if($("#user").val().length == 0){
+        return 1;
+    }else{
+        $("#alert").hide();
+        return 0;
+    }
+}
 
+function checkPassword(){
+    if($("#password").val().length == 0){
+        return 1;
+    }else{
+        $("#alert").hide();
+        return 0;
+    }
+}
+
+function checkAll(){
+    var count = 0;
+    count += checkUserName();
+    count += checkPassword();
+
+    if(count == 0){
+        $("#alert").hide();
+        return true;
+    }
+    else{
+        $("#alert").text("Please enter a username and password.");
+        $("#alert").show();
+        return false;
+    }
+}

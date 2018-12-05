@@ -8,6 +8,9 @@
         <meta name="uid2" content="ralstobj">
         <link rel="stylesheet" type="text/css" href="br_main.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/css/bootstrap.min.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script src="br_main.js"></script>
     </head>
     
     <body>
@@ -20,7 +23,7 @@
                 Incorrect username or password.
             </div>
             <h2>Please authenticate</h2>
-            <form method='get' class="form-inline" action="validateIdentity()">
+            <form method='POST' class="form-inline" action="javascript: validateIdentity();" id="form">
                     <div class="form-group">
                       <label for="user">User</label>
                       <input type="text" class="form-control" id="user" placeholder="test" name="user">
@@ -32,8 +35,6 @@
                     <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
-        <script src="br_main.js"></script>
+        
     </body>
 </html>
