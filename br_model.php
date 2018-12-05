@@ -75,4 +75,37 @@ function connectToDataBase() {
 
     return $mysqli;
 }
+
+// will generate a token for a valid user and add it to the tokens table
+function genToken($user) {
+    // generate a random user token to be stored in the data base
+    $token = random_str(42);
+
+    // add the token to the table
+    $theSQLstring = "INSERT INTO tokens (user, token)
+                     VALUES ('". $user ."', '". $token ."')";
+
+    mysqli_query($mysqli, $theSQLstring);            // run and hold the results of the sql query
+
+    // then return the token as a string
+    return $token;
+}
+
+
+/**
+ * Generate a random string, using random_int
+ * requires PHP 7, random_int is a PHP core function
+ * 
+ * @param int $length      How many characters do we want?
+ * @param string $keyspace A string of all possible characters to select from
+ * @return string
+ */
+function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') {
+    $pieces = [];
+    $max = mb_strlen($keyspace, '8bit') - 1;
+    for ($i = 0; $i < $length; ++$i) {
+        $pieces []= $keyspace[random_int(0, $max)];
+    }
+    return implode('', $pieces);
+}
 ?>

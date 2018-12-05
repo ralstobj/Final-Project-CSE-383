@@ -47,7 +47,7 @@ try {
 if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pathParts[2] === "user") {
     /*
     Given user and password will get a token validating the user.
-    If no user is present or the password does not match will return status will == "FAIL"
+    If no user is present or the password does not match will return status == "FAIL"
     passwords are hashed using the php password_hash function
 
     json_in:
@@ -70,12 +70,12 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
     // we were provided a user and password now we check if they are good
     if isUserAuth($user, $pass) {
         // generate and return the token
-        $ret = array('status'=>'OK','msg'=>'','token'=> getToken() );
+        $ret = array('status'=>'OK','msg'=>'','token'=> getToken($jsonData['user']) );
         retJson($ret);
     }
 
-    $ret = array('status'=>'FAIL', 'msg' =>'Username and Password not found','token'=>'');        // build the array we want to convert to JSON
-    retJson($ret);                                          // convert the the return array to JSON
+    $ret = array('status'=>'FAIL', 'msg' =>'Username and Password not found','token'=>'');
+    retJson($ret);
 }
 
 
