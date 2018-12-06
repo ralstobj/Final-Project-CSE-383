@@ -23,11 +23,12 @@ function validateIdentity() {
     $.ajax({
             type: "POST",
             dataType: "json",
-            url: "rest.php",
+            url: "rest.php/v1/user",
             contentType: 'application/json',
             data: JSON.stringify(dataFromForm),
             success: function(data){
                 console.log(data);
+                console.log(JSON.parse(data).token);
                 $("#alert").hide();
             },
             error: function(e){
