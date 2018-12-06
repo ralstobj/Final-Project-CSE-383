@@ -1,4 +1,3 @@
-<!-- br_model.php -->
 <?php
 // The data model for the BRsquared Project
 
@@ -9,29 +8,30 @@ function getData($a) {
 
 /*
 Database:
-    ●	users: user table
-        ○	pk
-        ○	user
-        ○	password -> hashed using the php password_hash function
-        ○	timestamp
-    ●	diary: Item Entries
-        ○	pk
-        ○	userFK -> foreign Key to user - not the user but the pk of the user
-        ○	itemFK -> foreign Key to item. Not the item but the PK of the item
-        ○	timestamp
-    ●	diaryItems: list of items
-        ○	pk: int
-        ○	item: tinytext
-    ●	tokens
-        ○	pk
-        ○	user - actual user string
-        ○	token - token string created randomly
-        ○	timestamp
+    -	users: user table
+        -	pk
+        -	user
+        -	password -> hashed using the php password_hash function
+        -	timestamp
+    -	diary: Item Entries
+        -	pk
+        -	userFK -> foreign Key to user - not the user but the pk of the user
+        -	itemFK -> foreign Key to item. Not the item but the PK of the item
+        -	timestamp
+    -	diaryItems: list of items
+        -	pk: int
+        -	item: tinytext
+    -	tokens
+        -	pk
+        -	user - actual user string
+        -	token - token string created randomly
+        -	timestamp
 */
 
 
 // check if the provided user and password are correct
 function isUserAuth($user, $pass) {
+    error_log("Is the User Authorized?");
     $mysqli = connectToDataBase();                          // create connection to database
     $pass = password_hash($pass, PASSWORD_DEFAULT);
     $isAuth = FALSE;
@@ -78,6 +78,7 @@ function connectToDataBase() {
 
 // will generate a token for a valid user and add it to the tokens table
 function genToken($user) {
+    error_log("Create User Token.");
     $mysqli = connectToDataBase();                          // create connection to database
     $token = random_str(42);                                // generate a random user token to be stored in the data base
 

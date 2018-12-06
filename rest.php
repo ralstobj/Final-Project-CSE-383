@@ -1,4 +1,3 @@
-<!-- rest.php -->
 <?php
 // The REST API for the BRsquared project
 
@@ -23,11 +22,14 @@ if (count($pathParts) <2) {
   $ret = array('status'=>'FAIL','msg'=>'Invalid URL');
   retJson($ret);
 }
+
+/*
 if ( $pathParts[1] !== "v1" || $pathParts[1] !== "items" ) {
     // If they are not using v1 or looking specificly for rest.php/items/token fail out
     $ret = array('status'=>'FAIL','msg'=>'Invalid url or version');
     retJson($ret);
 }
+*/
 
 //get json data if any
 $jsonData =array();
@@ -45,6 +47,7 @@ try {
 
 // Get Token - rest.php/v1/user
 if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pathParts[2] === "user") {
+    error_log("User Loggon Request");
     /*
     Given user and password will get a token validating the user.
     If no user is present or the password does not match will return status == "FAIL"
@@ -62,13 +65,13 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
     */
    
     // make sure we have we have the correct JSON information we need to make the updated
-    if (!isset($jsonData['user']) || !isset($jsonData['password'])) {
+    if ( !isset($jsonData['user']) || !isset($jsonData['password']) ) {
         $ret = array('status'=>'FAIL','msg'=>'json is invalid','token'=>'');
         retJson($ret);
     }
 
     // we were provided a user and password now we check if they are good
-    if isUserAuth($user, $pass) {
+    if ( isUserAuth($jsonData['user'], $jsonData['password']) ) {
         // generate and return the token
         $ret = array('status'=>'OK','msg'=>'','token'=> genToken($jsonData['user']) );
         retJson($ret);
@@ -100,17 +103,17 @@ if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "v1" && $path
 // Get Items User Consumed - rest.php/items/token
 if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "items") {
 /*
-    ■	Call gets the tracked items for a given user
-    ■	limit to last 30 items
-    ■	JSON Response:
-        ●	status: OK or AUTH_FAIL or FAIL
-        ●	msg: text
-        ●	items[]
-            ○	pk
-            ○	item
-            ○	timestamp
-    ■	test
-        ●	https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items/1db4342013a7c7793edd72c249893a6a095bca71
+    -	Call gets the tracked items for a given user
+    -	limit to last 30 items
+    -	JSON Response:
+        -	status: OK or AUTH_FAIL or FAIL
+        -	msg: text
+        -	items[]
+            -	pk
+            -	item
+            -	timestamp
+    -	test
+        -	https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items/1db4342013a7c7793edd72c249893a6a095bca71
 */
 }
 
@@ -118,15 +121,15 @@ if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "items") {
 // Get Summary of Items - rest.php/v1/itemsSummary/token
 if ($method==="get" && count($pathParts) == 4 && $pathParts[1] === "v1" && $pathParts[2] === "itemsSummary") {
 /*
-    ■	json_in: none
-    ■	json_out
-        ●	status
-        ●	msg
-        ●	items[]
-            ○	item
-            ○	count
-    ■	test
-        ●	https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/itemsSummary/1db4342013a7c7793edd72c249893a6a095bca71
+    -	json_in: none
+    -	json_out
+        -	status
+        -	msg
+        -	items[]
+            -	item
+            -	count
+    -	test
+        -	https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/itemsSummary/1db4342013a7c7793edd72c249893a6a095bca71
 */
 }
 
@@ -134,16 +137,20 @@ if ($method==="get" && count($pathParts) == 4 && $pathParts[1] === "v1" && $path
 // Update Items Consumed - rest.php/v1/items
 if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pathParts[2] === "items") {
 /*
-    ■	Updates item as being consumed
-    ■	JSON IN
-        ●	token: string token
-        ●	ItemFK: <key>
-    ■	JSON OUT
-        ●	status: OK or AUTH_FAIL or FAIL
-        ●	msg: text
-    ■	test
-        ●	curl -X 'POST' -d '{"token":"1db4342013a7c7793edd72c249893a6a095bca71","itemFK":2}' https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items
+    -	Updates item as being consumed
+    -	JSON IN
+        -	token: string token
+        -	ItemFK: <key>
+    -	JSON OUT
+        -	status: OK or AUTH_FAIL or FAIL
+        -	msg: text
+    -	test
+        -	curl -X 'POST' -d '{"token":"1db4342013a7c7793edd72c249893a6a095bca71","itemFK":2}' https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items
 */
 }
+
+// If we hit this point then they did not provide a valid call to the API
+$ret = array('status'=>'FAIL','msg'=>'Invalid url or version');
+retJson($ret);
 
 ?>
