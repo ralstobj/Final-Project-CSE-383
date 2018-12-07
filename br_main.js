@@ -21,18 +21,17 @@ function validateIdentity() {
     dataFromForm.user = $("#user").val();
     dataFromForm.password = $("#password").val();
     $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "rest.php/v1/user",
+            type: 'POST',
+            url: 'rest.php/v1/user',
             contentType: 'application/json',
             data: JSON.stringify(dataFromForm),
             success: function(data){
                 console.log(data);
-                console.log(JSON.parse(data).token);
+                console.log(data[0].token);
                 $("#alert").hide();
             },
-            error: function(e){
-                console.log(e.message);
+            error: function( req, status, err ) {
+    		console.log( 'something went wrong', status, err );
                 $("#alert").text("Incorrect username or password.");
                 $("#alert").show();
             }
