@@ -36,12 +36,12 @@ function isUserAuth($user, $pass) {
     $pass = password_hash($pass, PASSWORD_DEFAULT);
     $isAuth = FALSE;
 
-    // the SQL query for the info we want
-    $theSQLstring = "SELECT pk
-                     FROM users
-                     WHERE user='". $user ."' AND password='". $pass ."'";
+    // prepare, bind, then run the sql SELECT in the next three lines
+    $stmt = $mysqli->prepare("SELECT pk FROM users WHERE user=? AND password=?");
+    $stmt->bind_param("ss", $user, $pass);
+    $stmt->execute();
 
-    $res = mysqli_query($mysqli, $theSQLstring);            // run and hold the results of the sql query
+    $res = $stmt->get_result();                             // hold the results from the sql SELECT
 
     if (!$res) {
         // there was an error with the database query
@@ -50,7 +50,8 @@ function isUserAuth($user, $pass) {
         $isAuth = TRUE;
     }
 
-    mysqli_close($mysqli);
+    $stmt->close();                                         // close the statement
+    mysqli_close($mysqli);                                  // close the DB connection
     return $isAuth;
 }
 
@@ -66,10 +67,8 @@ function connectToDataBase() {
 
     // check
     if (mysqli_connect_errno($mysqli)) {
-        echo "<!-- ";
-        echo "Failed to connect to MySQL: " . mysqli_connect_error();
-        echo "Failed to connect to MySQL: " . mysqli_connect_error();
-        echo " -->";
+        error_log("Failed to connect to MySQL: ". mysqli_connect_error());
+        error_log("Failed to connect to MySQL: ". mysqli_connect_error());
         die;
     }
 
@@ -79,18 +78,52 @@ function connectToDataBase() {
 // will generate a token for a valid user and add it to the tokens table
 function genToken($user) {
     error_log("Create User Token.");
+
     $mysqli = connectToDataBase();                          // create connection to database
     $token = random_str(42);                                // generate a random user token to be stored in the data base
 
-    // add the token to the table
-    $theSQLstring = "INSERT INTO tokens (user, token)
-                     VALUES ('". $user ."', '". $token ."')";
+    // prepare and bind
+    $stmt = $mysqli->prepare("INSERT INTO tokens (user, token) VALUES (?, ?)");
+    $stmt->bind_param("ss", $user, $token);
+    $stmt->execute();
 
-    mysqli_query($mysqli, $theSQLstring);                   // run the sql query
+    $stmt->close();                                         // close the statement
     mysqli_close($mysqli);                                  // close connection to database
 
     // then return the token as a string
     return $token;
+}
+
+
+// will return an Array of all currently tracked itmes and their primary key
+function getTrackedItems() {
+    error_log("Build array of items from DB");
+    /*
+    -	diaryItems: list of items
+        -	pk: int
+        -	item: tinytext
+    */
+
+    $mysqli = connectToDataBase();                                  // create connection to database
+
+    $data = array();                                                // will hold the returned results from the sql query
+    $theSQLstring = "SELECT pk, item from diaryItems";              // the SQL query for the info we want
+    $res = mysqli_query($mysqli, $theSQLstring);                    // run and hold the results of the sql query
+
+    if (!$res) {
+        // there was an error with the database query
+        $data = "FAIL";
+    } else {
+        // Loop around the results row by row and add the data to the $data array
+        while($row = mysqli_fetch_assoc($res)) {
+            $data[] = $row;
+        }
+    }
+
+    //$ret = array('status'=>$status,'data' => $data);        // build the array we want to convert to JSON
+    return $data;
+
+    mysqli_close($mysqli);                                  // close connection to database
 }
 
 
