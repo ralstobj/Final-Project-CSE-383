@@ -88,7 +88,7 @@ if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "v1" && $path
     */
     $data = getTrackedItems();
 
-    $ret = array('status'=>'OK', 'msg' =>'','token'=>$data);
+    $ret = array('status'=>'OK', 'msg' =>'','items'=>$data);
 
     retJson($ret);
 }
