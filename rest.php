@@ -19,6 +19,7 @@ else $path = "";
 //path comes in as /a/b/c - split it apart and make sure it passes basic checks
 $pathParts = explode("/",$path);
 if (count($pathParts) <2) {
+    error_log( "Path: ". $path ." || Count: ". count($pathParts) );
   $ret = array('status'=>'FAIL','msg'=>'Invalid URL');
   retJson($ret);
 }
