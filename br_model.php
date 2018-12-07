@@ -95,6 +95,38 @@ function genToken($user) {
 }
 
 
+// will return an Array of all currently tracked itmes and their primary key
+function getTrackedItems() {
+    error_log("Build array of items from DB");
+    /*
+    -	diaryItems: list of items
+        -	pk: int
+        -	item: tinytext
+    */
+
+    $mysqli = connectToDataBase();                                  // create connection to database
+
+    $data = array();                                                // will hold the returned results from the sql query
+    $theSQLstring = "SELECT pk, item from diaryItems";              // the SQL query for the info we want
+    $res = mysqli_query($mysqli, $theSQLstring);                    // run and hold the results of the sql query
+
+    if (!$res) {
+        // there was an error with the database query
+        $data = "FAIL";
+    } else {
+        // Loop around the results row by row and add the data to the $data array
+        while($row = mysqli_fetch_assoc($res)) {
+            $data[] = $row;
+        }
+    }
+
+    //$ret = array('status'=>$status,'data' => $data);        // build the array we want to convert to JSON
+    return $data;
+
+    mysqli_close($mysqli);                                  // close connection to database
+}
+
+
 /**
  * Generate a random string, using random_int
  * requires PHP 7, random_int is a PHP core function
