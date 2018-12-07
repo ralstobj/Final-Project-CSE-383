@@ -19,10 +19,14 @@
             <p>CSE 383 - Group Project</p>
         </div>
         <div>
-            <div class="alert alert-danger" role="alert" id="alert">
+            <div class="alert alert-danger hidden" role="alert" id="alert">
                 Incorrect username or password.
             </div>
-            <h2>Please authenticate</h2>
+            <h2 id="authText">Please authenticate</h2>
+            <h2 id="recordText" class="hidden">Record an Item</h2>
+            <div id="buttonDiv"></div>
+            <div id="summaryDiv"></div>
+            <div id="historyDiv"></div>
             <form method='POST' class="form-inline" action="javascript: validateIdentity();" id="form">
                     <div class="form-group">
                       <label for="user">User</label>

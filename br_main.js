@@ -1,9 +1,15 @@
+var token;
 $(document).ready(function(){
     $("#alert").hide();
+    $('#recordText').hide();
+    $("#alert").removeClass("hidden");
+    $("#recordText").removeClass("hidden");
+    
     $('#form').on('submit', function(e) {
         if(checkAll() == false){
          e.preventDefault(); 
          } else {
+            e.preventDefault();
             validateIdentity();
          }
     });
@@ -26,12 +32,15 @@ function validateIdentity() {
             contentType: 'application/json',
             data: JSON.stringify(dataFromForm),
             success: function(data){
-                console.log(data);
-                console.log(data[0].token);
+                token = data.token;
                 $("#alert").hide();
+                $("#form").hide();
+                $("#authText").hide();
+                $('#recordText').show();
+                buttons();
             },
             error: function( req, status, err ) {
-    		console.log( 'something went wrong', status, err );
+    		console.log( 'something went wrong ', status, err );
                 $("#alert").text("Incorrect username or password.");
                 $("#alert").show();
             }
@@ -69,4 +78,37 @@ function checkAll(){
         $("#alert").show();
         return false;
     }
+}
+
+function buttons(){
+    $.ajax({
+        type: 'GET',
+        url: 'rest.php/v1/items',
+        success: function(data){
+            for (i=0; i < data.items.length; i++){
+                var specificItem = data.items[i];
+                var pk = specificItem.pk;
+                var item = specificItem.item;
+                var button = document.createElement("button");
+                $(button).attr('pk', ''+pk+'').text(''+item+'').addClass('btn btn-primary');
+                console.log(button);
+                $("#buttonDiv").append(button);
+            }
+        },
+        error: function( req, status, err ) {
+        console.log( 'something went wrong ', status, err );
+        }
+});
+}
+function history(){
+    $.ajax({
+        type: 'GET',
+        url: 'rest.php/items/'+token,
+        success: function(data){
+
+        },
+        error: function( req, status, err ) {
+        console.log( 'something went wrong ', status, err );
+        }
+});
 }
