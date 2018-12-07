@@ -2,6 +2,10 @@ var token;
 $(document).ready(function(){
     $("#alert").hide();
     $('#recordText').hide();
+    $('#summaryTable').hide();
+    $('#historyTable').hide();
+    $("#historyTable").removeClass("hidden");
+    $("#summaryTable").removeClass("hidden");
     $("#alert").removeClass("hidden");
     $("#recordText").removeClass("hidden");
     
@@ -38,6 +42,8 @@ function validateIdentity() {
                 $("#authText").hide();
                 $('#recordText').show();
                 buttons();
+                summary();
+                history();
             },
             error: function( req, status, err ) {
     		console.log( 'something went wrong ', status, err );
@@ -105,6 +111,37 @@ function history(){
         type: 'GET',
         url: 'rest.php/items/'+token,
         success: function(data){
+            var tr;
+            for (var i = 0; i < data.items.length; i++) {
+                var instance = data.items[i];
+                tr = $('<tr/>');
+                tr.append("<td>" + instance.item + "</td>");
+                tr.append("<td>" + instance.timestamp + "</td>");
+                $('#historyTable').append(tr);
+            }
+            $('#historyTable').show();
+
+        },
+        error: function( req, status, err ) {
+        console.log( 'something went wrong ', status, err );
+        }
+});
+}
+
+function summary(){
+    $.ajax({
+        type: 'GET',
+        url: 'rest.php/v1/itemsSummary/'+token,
+        success: function(data){
+            var tr;
+            for (var i = 0; i < data.items.length; i++) {
+                var instance = data.items[i];
+                tr = $('<tr/>');
+                tr.append("<td>" + instance.item + "</td>");
+                tr.append("<td>" + instance.count + "</td>");
+                $('#summaryTable').append(tr);
+            }
+            $('#summaryTable').show();
 
         },
         error: function( req, status, err ) {

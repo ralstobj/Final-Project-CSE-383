@@ -25,8 +25,22 @@
             <h2 id="authText">Please authenticate</h2>
             <h2 id="recordText" class="hidden">Record an Item</h2>
             <div id="buttonDiv"></div>
-            <div id="summaryDiv"></div>
-            <div id="historyDiv"></div>
+            <div id="summaryDiv">
+                <table id="summaryTable" class="table hidden">
+                    <tr>
+                        <th>Item</th>
+                        <th>Count</th>
+                    </tr>
+                </table>
+            </div>
+            <div id="historyDiv">
+                <table id="historyTable" class="table hidden">
+                    <tr>
+                        <th>Item</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </table>
+            </div>
             <form method='POST' class="form-inline" action="javascript: validateIdentity();" id="form">
                     <div class="form-group">
                       <label for="user">User</label>
