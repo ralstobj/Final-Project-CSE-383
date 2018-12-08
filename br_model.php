@@ -98,16 +98,11 @@ function genToken($user) {
 // will return an Array of all currently tracked itmes and their primary key
 function getTrackedItems() {
     error_log("Build array of items from DB");
-    /*
-    -	diaryItems: list of items
-        -	pk: int
-        -	item: tinytext
-    */
 
     $mysqli = connectToDataBase();                                  // create connection to database
 
     $data = array();                                                // will hold the returned results from the sql query
-    $theSQLstring = "SELECT pk, item from diaryItems";              // the SQL query for the info we want
+    $theSQLstring = "SELECT pk, item FROM diaryItems";              // the SQL query for the info we want
     $res = mysqli_query($mysqli, $theSQLstring);                    // run and hold the results of the sql query
 
     if (!$res) {
@@ -120,10 +115,52 @@ function getTrackedItems() {
         }
     }
 
-    //$ret = array('status'=>$status,'data' => $data);        // build the array we want to convert to JSON
+    mysqli_close($mysqli);                                          // close connection to database
     return $data;
+}
 
+/**
+ * will return an Array of items consumed by the requested user
+ *
+ * @param string $token token for the authorized user
+ * @param int $count maximum number of items to return
+ * @return array
+ */
+function getConsumedItems($token, $count) {
+    error_log("Get Consumed Items List");
+
+    $mysqli = connectToDataBase();                                                          // create connection to database
+    $data = array();                                                                        // will hold the returned results from teh sql querry
+
+    // prepare and bind so we can pull the user name based on the token
+    $stmt = $mysqli->prepare("SELECT user FROM tokens WHERE token = ?");                    // the SQL to get the user name from the tokens table
+    $stmt->bind_param("s", $token);
+    $userName = $stmt->execute();
+
+    if (!$userName) {
+        // there was an error with the database query
+        $data = "FAIL";
+        error_log("UserName not found in tokens: ". $userName);
+    } else {
+        $theSQLstring = "SELECT pk FROM users WHERE user='". $userName ."'";                        // the SQL query to pull the user's PK from the users table
+        $userPK = mysqli_query($mysqli, $theSQLstring);
+
+        $theSQLstring = "SELECT pk, item, timestamp FROM diary WHERE userFK='". $userPK ."'";       // String to get the items the user has consumed
+        $res = mysqli_query($mysqli, $theSQLstring);                                                // run and hold the results of the sql query
+        $rowCount = 0;
+
+        // Loop around the results row by row and add the data to the $data array
+        while( ($row = mysqli_fetch_assoc($res)) && ($rowCount < $count) ) {
+            $data[] = $row;
+            $rowCount++;
+        }
+    }
+
+    $stmt->close();                                         // close the statement
     mysqli_close($mysqli);                                  // close connection to database
+ 
+    // then return the token as a string
+    return $data;
 }
 
 

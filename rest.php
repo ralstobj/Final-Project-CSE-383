@@ -107,9 +107,13 @@ if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "items") {
             -	pk
             -	item
             -	timestamp
-    -	test
-        -	https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items/1db4342013a7c7793edd72c249893a6a095bca71
+    -	test https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items/1db4342013a7c7793edd72c249893a6a095bca71
 */
+    $data = getConsumedItems($pathParts[2], 30);                // get the last 30 items for the authorized user with the provided token
+
+    $ret = array('status'=>'OK', 'msg' =>'','items'=>$data);
+
+    retJson($ret);
 }
 
 
