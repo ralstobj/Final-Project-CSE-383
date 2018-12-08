@@ -163,14 +163,16 @@ function getConsumedItems($token, $count) {
 
     $userPK = tokenToPK($token);
 
-    $theSQLstring = "SELECT pk, item, timestamp FROM diary WHERE userFK='". $userPK ."'";       // SQL String to get the items the user has consumed
+    $theSQLstring = "SELECT pk, item, timestamp FROM diary WHERE userFK=". $userPK;       // SQL String to get the items the user has consumed
     $res = mysqli_query($mysqli, $theSQLstring);                                                // run and hold the results of the sql query
     $rowCount = 0;
 
-    // Loop around the results row by row and add the data to the $data array
-    while( $row = mysqli_fetch_assoc($res) && $rowCount < $count ) {
-        $data[] = $row;
-        $rowCount++;
+    if ($res) {
+        // Loop around the results row by row and add the data to the $data array
+        while( ($row = mysqli_fetch_assoc($res)) && ($rowCount < $count) ) {
+            $data[] = $row;
+            $rowCount++;
+        }
     }
 
     mysqli_close($mysqli);                                  // close connection to database
