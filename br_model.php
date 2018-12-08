@@ -342,31 +342,6 @@ function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzAB
 }
 
 
-/**
- * will check if the item key is valid or not
- * 
- * @param int $itemKey the primary key for an item
- * @return boolean if the key is valid return TRUE
- */
-function isItemKeyValid($itemKey) {
-    $mysqli = connectToDataBase();                                                          // create connection to database
-
-    // prepare and bind so we can pull the user name based on the token
-    $stmt = $mysqli->prepare("SELECT item FROM diaryItems WHERE pk = ?");                    // the SQL to get the user name from the tokens table
-    $stmt->bind_param("i", $itemKey);
-    $itemName = $stmt->execute();
-
-    $stmt->close();                                         // close the statement
-    mysqli_close($mysqli);                                  // close connection to database
-
-    if (!$itemName) {
-        error_log("Item Key Not Found: ". $itemKey);
-        return false;
-    }
-
-    return true;
-}
-
 function getData($a) {
     $ret = array("data"=>strlen($a));
     return $ret;
