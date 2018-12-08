@@ -154,13 +154,13 @@ function summary(){
             $('#summaryTable').append(header);
             var tr;
             //*/
-            // for (var i = 0; i < data.items.length; i++) {
-            //     var instance = data.items[i];
-            //     tr = $('<tr/>');
-            //     tr.append("<td>" + instance.itemFK + "</td>");
-            //     tr.append("<td>" + instance.count + "</td>");
-            //     $('#summaryTable').append(tr);
-            // }
+            for (var i = 0; i < data.items.length; i++) {
+                var instance = data.items[i];
+                tr = $('<tr/>');
+                tr.append("<td>" + instance.item + "</td>");
+                tr.append("<td>" + instance.count + "</td>");
+                $('#summaryTable').append(tr);
+            }
             //*/
             $('#summaryTable').show();
             $("#alert").hide();
