@@ -150,12 +150,12 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
 */
 
     // make sure we have we have the correct JSON information we need to make the updated
-    if ( !isset($jsonData['token']) || !isset($jsonData['itemFK']) ) {
+    if ( !isset($jsonData['token']) || !isset($jsonData['ItemFK']) ) {
         $ret = array('status'=>'FAIL','msg'=>'json is invalid');
         retJson($ret);
     }
 
-    if ( consumeItem($jsonData['token'], $jsonData['itemFK']) ) {
+    if ( consumeItem($jsonData['token'], $jsonData['ItemFK']) ) {
         $ret = array('status'=>'OK', 'msg'=>'Item Consumed');
         retJson($ret);
     }

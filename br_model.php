@@ -141,7 +141,7 @@ function consumeItem($token, $itemKey) {
 
     $stmt->close();                                         // close the statement
     mysqli_close($mysqli);                                  // close connection to database
-
+    $consumedStatus = TRUE;
 
     return $consumedStatus;
 }
