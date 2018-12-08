@@ -36,21 +36,32 @@ function isUserAuth($user, $pass) {
     $pass = password_hash($pass, PASSWORD_DEFAULT);
     $isAuth = FALSE;
 
+    /*/
     // prepare, bind, then run the sql SELECT in the next three lines
     $stmt = $mysqli->prepare("SELECT pk FROM users WHERE user=? AND password=?");
     $stmt->bind_param("ss", $user, $pass);
     $stmt->execute();
-
     $res = $stmt->get_result();                             // hold the results from the sql SELECT
+    $stmt->close();
+    /*/
+
+    // prepare and bind so we can check if the user is authorized
+    $stmt = $mysqli->prepare("SELECT pk FROM users WHERE user=? AND password=?");           // the SQL to get the user name from the tokens table
+    $stmt->bind_param("ss", $user, $pass);                                                  // bind the token to the SQL
+    $stmt->execute();                                                                       // execute the statement
+    $stmt->bind_result($res);                                                               // bind the results
+    $stmt->fetch();                                                                         // fetch the data
+    $stmt->close();                                                                         // close the statement
+    //*/
 
     if (!$res) {
         // there was an error with the database query
         $isAuth = FALSE;
     } else {
+        error_log("-----> Auth YES <-----");
         $isAuth = TRUE;
     }
 
-    $stmt->close();                                         // close the statement
     mysqli_close($mysqli);                                  // close the DB connection
     return $isAuth;
 }
@@ -160,20 +171,36 @@ function getConsumedItems($token, $count) {
 
     $mysqli = connectToDataBase();                                                          // create connection to database
     $data = array();                                                                        // will hold the returned results from the sql querry
+    $rowCount = 0;                                                                          // count how many rows we returned
 
-    $userPK = tokenToPK($token);
+    $userPK = tokenToPK($token);                                                            // the Primary Key for the user
 
-    $theSQLstring = "SELECT pk, item, timestamp FROM diary WHERE userFK=". $userPK;       // SQL String to get the items the user has consumed
+    //$theSQLstring = "SELECT pk, itemFK, timestamp FROM diary";                                // SQL String to get the items the user has consumed
+    //$theSQLstring = "SELECT pk, itemFK, timestamp FROM diary WHERE userFK=". $userPK;       // SQL String to get the items the user has consumed
+    //*/
+    $theSQLstring = "SELECT diary.pk, diaryItems.item, diary.timestamp
+                     FROM diary
+                     INNER JOIN diaryItems ON diary.itemFK=diaryItems.pk
+                     WHERE diary.userFK=". $userPK;
+    //*/
+    
     $res = mysqli_query($mysqli, $theSQLstring);                                                // run and hold the results of the sql query
-    $rowCount = 0;
 
+    //*/
     if ($res) {
+        error_log("-----> WE HAVE RESULTS <-----");
         // Loop around the results row by row and add the data to the $data array
         while( ($row = mysqli_fetch_assoc($res)) && ($rowCount < $count) ) {
             $data[] = $row;
             $rowCount++;
         }
     }
+    /*/
+    while( $row = mysqli_fetch_assoc($res) ) {
+        $data[] = $row;
+        $rowCount++;
+    }
+    //*/
 
     mysqli_close($mysqli);                                  // close connection to database
  
@@ -188,24 +215,30 @@ function getConsumedItems($token, $count) {
  * @return int
  */
 function tokenToPK($token) {
+    return 60;
     $userPK;
 
     $mysqli = connectToDataBase();                                                          // create connection to database
 
     // prepare and bind so we can pull the user name based on the token
-    $stmt = $mysqli->prepare("SELECT user FROM tokens WHERE token = ?");                    // the SQL to get the user name from the tokens table
-    $stmt->bind_param("s", $token);
-    $userName = $stmt->execute();
+    $stmt = $mysqli->prepare("SELECT user FROM tokens WHERE token=?");                      // the SQL to get the user name from the tokens table
+    $stmt->bind_param("s", $token);                                                         // bind the token to the SQL
+    $stmt->execute();                                                                       // execute the statement
+    $stmt->bind_result($userName);                                                          // bind the results
+    $stmt->fetch();                                                                         // fetch the data
+    $stmt->close();                                                                         // close the statement
     
     if (!$userName) {
-        error_log("UserName not found: ". $userName);
-        return $userPK;
+        error_log("User not found for token: ". $token);
+        return;
     }
 
     $theSQLstring = "SELECT pk FROM users WHERE user='". $userName ."'";                // the SQL query to pull the user's PK from the users table
-    $userPK = mysqli_query($mysqli, $theSQLstring);
+    $res  = mysqli_query($mysqli, $theSQLstring);
+    $row = mysqli_fetch_assoc($res);
+    $userPK = $row['pk'];
+    error_log("User found: ". $userPK);
 
-    $stmt->close();                                         // close the statement
     mysqli_close($mysqli);                                  // close connection to database
 
     return $userPK;
