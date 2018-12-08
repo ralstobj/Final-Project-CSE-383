@@ -136,7 +136,7 @@ if ($method==="get" && count($pathParts) == 4 && $pathParts[1] === "v1" && $path
 
 // Update Items Consumed - rest.php/v1/items
 if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pathParts[2] === "items") {
-    error_log("Items Consumed.");
+    error_log("Item Consumed");
 /*
     -	Updates item as being consumed
     -	JSON IN
@@ -148,6 +148,20 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
     -	test
         -	curl -X 'POST' -d '{"token":"1db4342013a7c7793edd72c249893a6a095bca71","itemFK":2}' https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items
 */
+
+    // make sure we have we have the correct JSON information we need to make the updated
+    if ( !isset($jsonData['token']) || !isset($jsonData['ItemFK']) ) {
+        $ret = array('status'=>'FAIL','msg'=>'json is invalid');
+        retJson($ret);
+    }
+
+    if (consumeItem($token, $itemKey)) {
+        $ret = array('status'=>'OK', 'msg'=>'Item Consumed');
+        retJson($ret);
+    }
+
+    $ret = array('status'=>'AUTH_FAIL', 'msg'=>'User Not Authorized');
+    retJson($ret);
 }
 
 // If we hit this point then they did not provide a valid call to the API

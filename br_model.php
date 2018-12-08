@@ -119,6 +119,35 @@ function getTrackedItems() {
     return $data;
 }
 
+
+/**
+ * list an item as consumed by the user
+ * 
+ * @param string $token the token for the authorized user
+ * @param int $itemKey the key for the item that was consumed
+ * @return boolean true if the item was consumed false if not
+ */
+function consumeItem($token, $itemKey) {
+    error_log("Item being consumed");
+    $consumedStatus = FALSE;                            // will set to true if the item is consumed
+    $userPK = tokenToPK($token);
+
+    $mysqli = connectToDataBase();                      // create connection to database
+    
+    // prepare and bind
+    $stmt = $mysqli->prepare("INSERT INTO diary (userFK, itemFK) VALUES (?, ?)");
+    $stmt->bind_param("ii", $userPK, $itemKey);
+    $stmt->execute();
+
+    $stmt->close();                                         // close the statement
+    mysqli_close($mysqli);                                  // close connection to database
+
+
+    return $consumedStatus;
+}
+
+
+
 /**
  * will return an Array of items consumed by the requested user
  *
@@ -139,7 +168,7 @@ function getConsumedItems($token, $count) {
     $rowCount = 0;
 
     // Loop around the results row by row and add the data to the $data array
-    while( ($row = mysqli_fetch_assoc($res)) && ($rowCount < $count) ) {
+    while( $row = mysqli_fetch_assoc($res) && $rowCount < $count ) {
         $data[] = $row;
         $rowCount++;
     }
@@ -167,7 +196,7 @@ function tokenToPK($token) {
     $userName = $stmt->execute();
     
     if (!$userName) {
-        error_log("UserName not found in tokens: ". $userName);
+        error_log("UserName not found: ". $userName);
         return $userPK;
     }
 
@@ -178,6 +207,31 @@ function tokenToPK($token) {
     mysqli_close($mysqli);                                  // close connection to database
 
     return $userPK;
+}
+
+/**
+ * will check if the item key is valid or not
+ * 
+ * @param int $itemKey the primary key for an item
+ * @return boolean if the key is valid return TRUE
+ */
+function isItemKeyValid($itemKey) {
+    $mysqli = connectToDataBase();                                                          // create connection to database
+
+    // prepare and bind so we can pull the user name based on the token
+    $stmt = $mysqli->prepare("SELECT item FROM diaryItems WHERE pk = ?");                    // the SQL to get the user name from the tokens table
+    $stmt->bind_param("i", $itemKey);
+    $itemName = $stmt->execute();
+
+    $stmt->close();                                         // close the statement
+    mysqli_close($mysqli);                                  // close connection to database
+
+    if (!$itemName) {
+        error_log("Item Key Not Found: ". $itemKey);
+        return false;
+    }
+
+    return true;
 }
 
 
