@@ -153,7 +153,7 @@ function getConsumedItems($token, $count) {
     $theSQLstring = "SELECT diary.pk, diaryItems.item, diary.timestamp
                     FROM diary
                     INNER JOIN diaryItems ON diary.itemFK=diaryItems.pk
-                    WHERE diary.userFK=". $userPK;
+                    WHERE diary.userFK=". $userPK ." ORDER BY diary.timestamp DESC";
     
     $res = mysqli_query($mysqli, $theSQLstring);                                                // run and hold the results of the sql query
 
@@ -230,7 +230,7 @@ function connectToDataBase() {
  * @return boolean returns TRUE if the token is valid
  */
 function isTokenValid($token) {
-    return TRUE;
+    //return TRUE;
     $mysqli = connectToDataBase();                                                          // create connection to database
     $isValid = FALSE;
 
@@ -262,7 +262,6 @@ function isTokenValid($token) {
  * @return int
  */
 function tokenToPK($token) {
-    //return 60;
     $userPK;
 
     $mysqli = connectToDataBase();                                                          // create connection to database
