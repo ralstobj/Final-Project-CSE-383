@@ -43,11 +43,9 @@ function isUserAuth($user, $pass) {
     if ($res->num_rows === 0) {
         // user name not found so loggon is not authorized
         $isAuth = FALSE;
-        error_log("-----> User NOT found <-----");
     } else {
         $row = mysqli_fetch_assoc($res);
         $isAuth = password_verify($pass, $row['password']);                                 // will be TRUE if the password is is correct
-        error_log("-----> User Authorization: ". $isAuth ." <-----");
     }
 
     $stmt->close();                                                                         // close the statement
@@ -57,8 +55,6 @@ function isUserAuth($user, $pass) {
 
 // will generate a token for a valid user and add it to the tokens table
 function genToken($user) {
-    error_log("Create User Token.");
-
     $mysqli = connectToDataBase();                          // create connection to database
     $token = random_str(42);                                // generate a random user token to be stored in the data base
 
@@ -81,8 +77,6 @@ function genToken($user) {
  * @return array An associative array with each row having pk as an int and item as a string
  */
 function getTrackedItems() {
-    error_log("Build array of items from DB");
-
     $mysqli = connectToDataBase();                                  // create connection to database
 
     $data = array();                                                // will hold the returned results from the sql query
@@ -114,7 +108,6 @@ function getTrackedItems() {
  * @return boolean true if the item was consumed false if not
  */
 function consumeItem($token, $itemKey) {
-    error_log("Item being consumed");
     $consumedStatus = FALSE;                            // will set to true if the item is consumed
     $userPK = tokenToPK($token);
 
@@ -142,8 +135,6 @@ function consumeItem($token, $itemKey) {
  * @return array
  */
 function getConsumedItems($token, $count) {
-    error_log("Get Consumed Items List");
-
     $mysqli = connectToDataBase();                                                          // create connection to database
     $data = array();                                                                        // will hold the returned results from the sql querry
     $rowCount = 0;                                                                          // count how many rows we returned
@@ -172,8 +163,6 @@ function getConsumedItems($token, $count) {
 
 // return an array of items and how many times that item type has been consumed by the user with provided token
 function getItemSummary($token) {
-    error_log("Get summary of Items consumed");
-
     $mysqli = connectToDataBase();                                                          // create connection to database
     $data = array();                                                                        // will hold the returned results from the sql querry
     $userPK = tokenToPK($token);                                                            // the Primary Key for the user
@@ -243,11 +232,9 @@ function isTokenValid($token) {
     if ($res->num_rows === 0) {
         // Token not found so token is not Valid
         $isValid = FALSE;
-        error_log("-----> Token NOT found <-----");
     } else {
         $row = mysqli_fetch_assoc($res);
         $isValid = TRUE;
-        error_log("-----> Token Valid for: ". $row['user'] ." <-----");
     }
 
     $stmt->close();                                                                         // close the statement
@@ -276,11 +263,9 @@ function isItemKeyValid($itemKey) {
     if ($res->num_rows === 0) {
         // itemKey not found so itemKey is not Valid
         $isValid = FALSE;
-        error_log("-----> itemKey NOT found <-----");
     } else {
         $row = mysqli_fetch_assoc($res);
         $isValid = TRUE;
-        error_log("-----> itemKey Valid for: ". $row['item'] ." <-----");
     }
 
     $stmt->close();                                                                         // close the statement
@@ -316,11 +301,8 @@ function tokenToPK($token) {
     $res  = mysqli_query($mysqli, $theSQLstring);
     $row = mysqli_fetch_assoc($res);
     $userPK = $row['pk'];
-    error_log("User found: ". $userPK);
 
     mysqli_close($mysqli);                                  // close connection to database
-
-    error_log("----------> USER PK: ". $userPK ." <----------");
     return $userPK;
 }
 
@@ -340,7 +322,6 @@ function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzAB
     }
     return implode('', $pieces);
 }
-
 
 function getData($a) {
     $ret = array("data"=>strlen($a));

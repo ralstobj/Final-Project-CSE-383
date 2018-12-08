@@ -19,7 +19,6 @@ else $path = "";
 //path comes in as /a/b/c - split it apart and make sure it passes basic checks
 $pathParts = explode("/",$path);
 if (count($pathParts) <2) {
-    error_log( "Path: ". $path ." || Count: ". count($pathParts) );
     $ret = array('status'=>'FAIL','msg'=>'Invalid URL');
     retJson($ret);
 }
@@ -40,7 +39,6 @@ try {
 
 // Get Token - rest.php/v1/user
 if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pathParts[2] === "user") {
-    error_log("User Loggon Request");
     /*
     Given user and password will get a token validating the user.
     If no user is present or the password does not match will return status == "FAIL"
@@ -71,7 +69,6 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
 
 // Get list of items - rest.php/v1/items
 if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pathParts[2] === "items") {
-    error_log("Items being tracked.");
     /*
     Return the set of items we are tracking and their key
     json_in: none
@@ -86,7 +83,6 @@ if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "v1" && $path
 
 // Get Items User Consumed - rest.php/items/token
 if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "items") {
-    error_log("Items tracked by the user");
 /*
     Call gets the tracked items for a given user limit to last 30 items
     JSON Response: status<OK or AUTH_FAIL or FAIL>, msg, items[](pk, item, timestamp)
@@ -107,7 +103,6 @@ if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "items") {
 
 // Get Summary of Items - rest.php/v1/itemsSummary/token
 if ($method==="get" && count($pathParts) == 4 && $pathParts[1] === "v1" && $pathParts[2] === "itemsSummary") {
-    error_log("Items Summary");
 /*
     json_in: none
     json_out: status, msg, items[](item, count)
@@ -127,7 +122,6 @@ if ($method==="get" && count($pathParts) == 4 && $pathParts[1] === "v1" && $path
 
 // Update Items Consumed - rest.php/v1/items
 if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pathParts[2] === "items") {
-    error_log("Item Consumed");
 /*
     Updates item as being consumed
     JSON IN: token, ItemFK
