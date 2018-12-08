@@ -130,30 +130,18 @@ function getConsumedItems($token, $count) {
     error_log("Get Consumed Items List");
 
     $mysqli = connectToDataBase();                                                          // create connection to database
-    $data = array();                                                                        // will hold the returned results from teh sql querry
+    $data = array();                                                                        // will hold the returned results from the sql querry
 
-    // prepare and bind so we can pull the user name based on the token
-    $stmt = $mysqli->prepare("SELECT user FROM tokens WHERE token = ?");                    // the SQL to get the user name from the tokens table
-    $stmt->bind_param("s", $token);
-    $userName = $stmt->execute();
+    $userPK = tokenToPK($token);
 
-    if (!$userName) {
-        // there was an error with the database query
-        $data = "FAIL";
-        error_log("UserName not found in tokens: ". $userName);
-    } else {
-        $theSQLstring = "SELECT pk FROM users WHERE user='". $userName ."'";                        // the SQL query to pull the user's PK from the users table
-        $userPK = mysqli_query($mysqli, $theSQLstring);
+    $theSQLstring = "SELECT pk, item, timestamp FROM diary WHERE userFK='". $userPK ."'";       // SQL String to get the items the user has consumed
+    $res = mysqli_query($mysqli, $theSQLstring);                                                // run and hold the results of the sql query
+    $rowCount = 0;
 
-        $theSQLstring = "SELECT pk, item, timestamp FROM diary WHERE userFK='". $userPK ."'";       // String to get the items the user has consumed
-        $res = mysqli_query($mysqli, $theSQLstring);                                                // run and hold the results of the sql query
-        $rowCount = 0;
-
-        // Loop around the results row by row and add the data to the $data array
-        while( ($row = mysqli_fetch_assoc($res)) && ($rowCount < $count) ) {
-            $data[] = $row;
-            $rowCount++;
-        }
+    // Loop around the results row by row and add the data to the $data array
+    while( ($row = mysqli_fetch_assoc($res)) && ($rowCount < $count) ) {
+        $data[] = $row;
+        $rowCount++;
     }
 
     $stmt->close();                                         // close the statement
@@ -161,6 +149,33 @@ function getConsumedItems($token, $count) {
  
     // then return the token as a string
     return $data;
+}
+
+/**
+ * will retun the PK for an authorized user based on the token provided
+ * 
+ * @param string $token token for the authorized user
+ * @return int
+ */
+function tokenToPK($token) {
+    $userPK;
+
+    $mysqli = connectToDataBase();                                                          // create connection to database
+
+    // prepare and bind so we can pull the user name based on the token
+    $stmt = $mysqli->prepare("SELECT user FROM tokens WHERE token = ?");                    // the SQL to get the user name from the tokens table
+    $stmt->bind_param("s", $token);
+    $userName = $stmt->execute();
+    
+    if (!$userName) {
+        error_log("UserName not found in tokens: ". $userName);
+        return $userPK;
+    }
+
+    $theSQLstring = "SELECT pk FROM users WHERE user='". $userName ."'";                // the SQL query to pull the user's PK from the users table
+    $userPK = mysqli_query($mysqli, $theSQLstring);
+
+    return $userPK;
 }
 
 
