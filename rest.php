@@ -129,15 +129,10 @@ if ($method==="get" && count($pathParts) == 4 && $pathParts[1] === "v1" && $path
 if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pathParts[2] === "items") {
     error_log("Item Consumed");
 /*
-    -	Updates item as being consumed
-    -	JSON IN
-        -	token: string token
-        -	ItemFK: <key>
-    -	JSON OUT
-        -	status: OK or AUTH_FAIL or FAIL
-        -	msg: text
-    -	test
-        -	curl -X 'POST' -d '{"token":"1db4342013a7c7793edd72c249893a6a095bca71","itemFK":2}' https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items
+    Updates item as being consumed
+    JSON IN: token, ItemFK
+    JSON OUT: status<OK or AUTH_FAIL or FAIL>, msg
+    test: curl -X 'POST' -d '{"token":"1db4342013a7c7793edd72c249893a6a095bca71","itemFK":2}' https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/items
 */
 
     // make sure we have we have the correct JSON information we need to make the updated
@@ -145,7 +140,10 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
         $ret = array('status'=>'FAIL','msg'=>'json is invalid');
         retJson($ret);
     }
-
+    if(!isTokenValid($jsonData['token'])) {
+        $ret = array('status'=>'AUTH_FAIL', 'msg'=>'Token is invalid');
+        retJson($ret);
+    }
     if ( consumeItem($jsonData['token'], $jsonData['ItemFK']) ) {
         $ret = array('status'=>'OK', 'msg'=>'Item Consumed');
         retJson($ret);
