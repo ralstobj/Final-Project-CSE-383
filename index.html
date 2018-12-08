@@ -6,7 +6,7 @@
         <meta name="description" content="CSE383 Group Project - BRsquared">
         <meta name="uid1" content="ruthrab">
         <meta name="uid2" content="ralstobj">
-        <link rel="stylesheet" type="text/css" href="br_main.css">
+        <link rel="stylesheet" href="br_main.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/css/bootstrap.min.css" />
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
@@ -18,7 +18,7 @@
             <H1>BR Squared</H1>
             <p>CSE 383 - Group Project</p>
         </div>
-        <div>
+        <div class="center">
             <div class="alert alert-danger hidden" role="alert" id="alert">
                 Incorrect username or password.
             </div>
@@ -41,7 +41,7 @@
                     </tr>
                 </table>
             </div>
-            <form method='POST' class="form-inline" action="javascript: validateIdentity();" id="form">
+            <form method='POST' class="form" action="javascript: validateIdentity();" id="form">
                     <div class="form-group">
                       <label for="user">User</label>
                       <input type="text" class="form-control" id="user" placeholder="test" name="user">

@@ -96,13 +96,16 @@ function buttons(){
                 var pk = specificItem.pk;
                 var item = specificItem.item;
                 var button = document.createElement("button");
-                $(button).attr('pk', ''+pk+'').text(''+item+'').addClass('btn btn-primary');
+                $(button).text(''+item+'').addClass('btn btn-primary');
+                $(button).attr("onClick", 'addAndUpdate('+pk+')');
                 console.log(button);
                 $("#buttonDiv").append(button);
+                $("#alert").hide();
             }
         },
         error: function( req, status, err ) {
-        console.log( 'something went wrong ', status, err );
+            console.log( 'something went wrong ', status, err );
+            $("#alert").text("Unable to retrieve item list").show();
         }
 });
 }
@@ -112,18 +115,19 @@ function history(){
         url: 'rest.php/items/'+token,
         success: function(data){
             var tr;
-            for (var i = 0; i < data.items.length; i++) {
-                var instance = data.items[i];
-                tr = $('<tr/>');
-                tr.append("<td>" + instance.item + "</td>");
-                tr.append("<td>" + instance.timestamp + "</td>");
-                $('#historyTable').append(tr);
-            }
+            // for (var i = 0; i < data.items.length; i++) {
+            //     var instance = data.items[i];
+            //     tr = $('<tr/>');
+            //     tr.append("<td>" + instance.item + "</td>");
+            //     tr.append("<td>" + instance.timestamp + "</td>");
+            //     $('#historyTable').append(tr);
+            // }
             $('#historyTable').show();
-
+            $("#alert").hide();
         },
         error: function( req, status, err ) {
-        console.log( 'something went wrong ', status, err );
+            console.log( 'something went wrong ', status, err );
+            $("#alert").text("Unable to retrieve history of diary.").show();
         }
 });
 }
@@ -134,18 +138,45 @@ function summary(){
         url: 'rest.php/v1/itemsSummary/'+token,
         success: function(data){
             var tr;
-            for (var i = 0; i < data.items.length; i++) {
-                var instance = data.items[i];
-                tr = $('<tr/>');
-                tr.append("<td>" + instance.item + "</td>");
-                tr.append("<td>" + instance.count + "</td>");
-                $('#summaryTable').append(tr);
-            }
+            // for (var i = 0; i < data.items.length; i++) {
+            //     var instance = data.items[i];
+            //     tr = $('<tr/>');
+            //     tr.append("<td>" + instance.item + "</td>");
+            //     tr.append("<td>" + instance.count + "</td>");
+            //     $('#summaryTable').append(tr);
+            // }
             $('#summaryTable').show();
-
+            $("#alert").hide();
         },
         error: function( req, status, err ) {
-        console.log( 'something went wrong ', status, err );
+            console.log( 'something went wrong ', status, err );
+            $("#alert").text("Unable to retrieve summary of diary.").show();
         }
 });
+}
+
+function addAndUpdate(fk){
+    var data = {};
+    data.token = token;
+    data.itemFK = fk;
+    $.ajax({
+            type: 'POST',
+            url: 'rest.php/v1/items',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(data){
+                clearTables();
+                summary();
+                history();
+            },
+            error: function( req, status, err ) {
+    		    console.log( 'something went wrong ', status, err );
+                $("#alert").text("Unable to add item.").show();
+            }
+    });
+}
+
+function clearTables(){
+    $("#summaryTable").html('');
+    $("#historyTable").html('');
 }
