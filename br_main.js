@@ -36,14 +36,20 @@ function validateIdentity() {
             contentType: 'application/json',
             data: JSON.stringify(dataFromForm),
             success: function(data){
-                token = data.token;
-                $("#alert").hide();
-                $("#form").hide();
-                $("#authText").hide();
-                $('#recordText').show();
-                buttons();
-                summary();
-                history();
+                console.log(data.status);
+                if(data.status == "OK"){
+                    token = data.token;
+                    $("#alert").hide();
+                    $("#form").hide();
+                    $("#authText").hide();
+                    $('#recordText').show();
+                    buttons();
+                    summary();
+                    history();
+                }else{
+                    $("#alert").text("Incorrect username or password.");
+                    $("#alert").show();
+                }
             },
             error: function( req, status, err ) {
     		console.log( 'something went wrong ', status, err );
@@ -98,7 +104,6 @@ function buttons(){
                 var button = document.createElement("button");
                 $(button).text(''+item+'').addClass('btn btn-primary');
                 $(button).attr("onClick", 'addAndUpdate('+pk+')');
-                console.log(button);
                 $("#buttonDiv").append(button);
                 $("#alert").hide();
             }
@@ -114,12 +119,16 @@ function history(){
         type: 'GET',
         url: 'rest.php/items/'+token,
         success: function(data){
+            var header = $('<tr/>');
+            header.append("<th>Item</th>");
+            header.append("<th>Timestamp</th>");
+            $('#historyTable').append(header);
             var tr;
             //*/
             for (var i = 0; i < data.items.length; i++) {
                 var instance = data.items[i];
                 tr = $('<tr/>');
-                tr.append("<td>" + instance.itemFK + "</td>");
+                tr.append("<td>" + instance.item + "</td>");
                 tr.append("<td>" + instance.timestamp + "</td>");
                 $('#historyTable').append(tr);
             }
@@ -139,15 +148,19 @@ function summary(){
         type: 'GET',
         url: 'rest.php/v1/itemsSummary/'+token,
         success: function(data){
+            var header = $('<tr/>');
+            header.append("<th>Item</th>");
+            header.append("<th>Count</th>");
+            $('#summaryTable').append(header);
             var tr;
             //*/
-            for (var i = 0; i < data.items.length; i++) {
-                var instance = data.items[i];
-                tr = $('<tr/>');
-                tr.append("<td>" + instance.itemFK + "</td>");
-                tr.append("<td>" + instance.count + "</td>");
-                $('#summaryTable').append(tr);
-            }
+            // for (var i = 0; i < data.items.length; i++) {
+            //     var instance = data.items[i];
+            //     tr = $('<tr/>');
+            //     tr.append("<td>" + instance.itemFK + "</td>");
+            //     tr.append("<td>" + instance.count + "</td>");
+            //     $('#summaryTable').append(tr);
+            // }
             //*/
             $('#summaryTable').show();
             $("#alert").hide();
@@ -181,6 +194,6 @@ function addAndUpdate(fk){
 }
 
 function clearTables(){
-    $("#summaryTable").html('');
-    $("#historyTable").html('');
+    $("#summaryTable > tr").remove();
+    $("#historyTable > tr").remove();
 }
