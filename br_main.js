@@ -119,10 +119,6 @@ function history(){
         type: 'GET',
         url: 'rest.php/items/'+token,
         success: function(data){
-            var header = $('<tr/>');
-            header.append("<th>Item</th>");
-            header.append("<th>Timestamp</th>");
-            $('#historyTable').append(header);
             var tr;
             //*/
             for (var i = 0; i < data.items.length; i++) {
@@ -148,10 +144,6 @@ function summary(){
         type: 'GET',
         url: 'rest.php/v1/itemsSummary/'+token,
         success: function(data){
-            var header = $('<tr/>');
-            header.append("<th>Item</th>");
-            header.append("<th>Count</th>");
-            $('#summaryTable').append(header);
             var tr;
             //*/
             for (var i = 0; i < data.items.length; i++) {
@@ -194,6 +186,6 @@ function addAndUpdate(fk){
 }
 
 function clearTables(){
-    $("#summaryTable > tr").remove();
-    $("#historyTable > tr").remove();
+    $("#summaryTable").find("tr:gt(0)").remove();
+    $("#historyTable").find("tr:gt(0)").remove();
 }
