@@ -262,7 +262,7 @@ function isTokenValid($token) {
  * @return int
  */
 function tokenToPK($token) {
-    return 60;
+    //return 60;
     $userPK;
 
     $mysqli = connectToDataBase();                                                          // create connection to database
@@ -288,6 +288,7 @@ function tokenToPK($token) {
 
     mysqli_close($mysqli);                                  // close connection to database
 
+    error_log("----------> USER PK: ". $userPK ." <----------");
     return $userPK;
 }
 

@@ -95,10 +95,10 @@ if ($method==="get" && count($pathParts) == 3 && $pathParts[1] === "items") {
     // ensure we are provided a token that has been validated
     if (isTokenValid($pathParts[2])) {
         $data = getConsumedItems($pathParts[2], 30);                // get the last 30 items for the authorized user with the provided token
-        $ret = array('status'=>'OK', 'msg'=>'','items'=>$data);     // build up the data to send as JSON
+        $ret = array('status'=>'OK', 'msg'=>'Items Consumed','items'=>$data);     // build up the data to send as JSON
     } else {
         // since the token is not valid send the error
-        $ret = array('status'=>'AUTH_FAIL', 'msg'=>'Token Not Valid (items)', 'items'=>'');
+        $ret = array('status'=>'AUTH_FAIL', 'msg'=>'Token Not Valid (items consumed)', 'items'=>'');
     }
 
     retJson($ret);                                                  // send that JSON data back
@@ -114,9 +114,9 @@ if ($method==="get" && count($pathParts) == 4 && $pathParts[1] === "v1" && $path
     test: https://ceclnx01.cec.miamioh.edu/~campbest/cse383/finalProject/restFinal.php/v1/itemsSummary/1db4342013a7c7793edd72c249893a6a095bca71
 */
     // ensure we are provided a token that has been validated
-    if (isTokenValid($pathParts[2])) {
-        $data = getItemSummary($pathParts[2]);                      // get the item summary for the user with the provided token
-        $ret = array('status'=>'OK', 'msg'=>'', 'items'=>$data);    // build up the data to send as JSON
+    if (isTokenValid($pathParts[3])) {
+        $data = getItemSummary($pathParts[3]);                      // get the item summary for the user with the provided token
+        $ret = array('status'=>'OK', 'msg'=>'Item Summary', 'items'=>$data);    // build up the data to send as JSON
     } else {
         // since the token is not valid send the error
         $ret = array('status'=>'AUTH_FAIL', 'msg'=>'Token Not Valid (items summary)', 'items'=>'');
