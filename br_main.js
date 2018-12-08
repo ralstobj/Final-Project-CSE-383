@@ -158,7 +158,7 @@ function summary(){
 function addAndUpdate(fk){
     var data = {};
     data.token = token;
-    data.itemFK = fk;
+    data.ItemFK = fk;
     $.ajax({
             type: 'POST',
             url: 'rest.php/v1/items',
