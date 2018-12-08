@@ -144,7 +144,6 @@ function getConsumedItems($token, $count) {
         $rowCount++;
     }
 
-    $stmt->close();                                         // close the statement
     mysqli_close($mysqli);                                  // close connection to database
  
     // then return the token as a string
@@ -174,6 +173,9 @@ function tokenToPK($token) {
 
     $theSQLstring = "SELECT pk FROM users WHERE user='". $userName ."'";                // the SQL query to pull the user's PK from the users table
     $userPK = mysqli_query($mysqli, $theSQLstring);
+
+    $stmt->close();                                         // close the statement
+    mysqli_close($mysqli);                                  // close connection to database
 
     return $userPK;
 }
