@@ -144,6 +144,10 @@ if ($method==="post" && count($pathParts) == 3 && $pathParts[1] === "v1" && $pat
         $ret = array('status'=>'AUTH_FAIL', 'msg'=>'Token is invalid');
         retJson($ret);
     }
+    if(!isItemKeyValid($jsonData['ItemFK'])) {
+        $ret = ('status'=>'FAIL', 'msg'=>'Item Key is invalid');
+        retJson($ret);
+    }
     if ( consumeItem($jsonData['token'], $jsonData['ItemFK']) ) {
         $ret = array('status'=>'OK', 'msg'=>'Item Consumed');
         retJson($ret);

@@ -255,6 +255,39 @@ function isTokenValid($token) {
     return $isValid;
 }
 
+
+/**
+ * Checks if a provided item key is a valid listing in the Database
+ * 
+ * @param int $itemKey the token to check for validity
+ * @return boolean returns TRUE if the itemKey is valid
+ */
+function isItemKeyValid($itemKey) {
+    //return TRUE;
+    $mysqli = connectToDataBase();                                                          // create connection to database
+    $isValid = FALSE;
+
+    // prepare and bind so we can check if the user is authorized
+    $stmt = $mysqli->prepare("SELECT item FROM diaryItems WHERE pk=?");                     // the SQL to pull the item with a provided key
+    $stmt->bind_param("i", $itemKey);                                                       // bind $itemKey to the SQL statement
+    $stmt->execute();                                                                       // execute the statement (run the query)
+    $res = $stmt->get_result();                                                             // get the results of the query
+
+    if ($res->num_rows === 0) {
+        // itemKey not found so itemKey is not Valid
+        $isValid = FALSE;
+        error_log("-----> itemKey NOT found <-----");
+    } else {
+        $row = mysqli_fetch_assoc($res);
+        $isValid = TRUE;
+        error_log("-----> itemKey Valid for: ". $row['item'] ." <-----");
+    }
+
+    $stmt->close();                                                                         // close the statement
+    mysqli_close($mysqli);                                                                  // close the DB connection
+    return $isValid;
+}
+
 /**
  * will retun the PK for an authorized user based on the token provided
  * 
