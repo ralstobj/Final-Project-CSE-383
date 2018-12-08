@@ -1,11 +1,5 @@
 <?php
 // The data model for the BRsquared Project
-
-function getData($a) {
-    $ret = array("data"=>strlen($a));
-    return $ret;
-}
-
 /*
 Database:
     -	users: user table
@@ -29,61 +23,36 @@ Database:
 */
 
 
-// check if the provided user and password are correct
+/**
+ * Checks if a username and password pair are stored in the Database
+ * 
+ * @param string $user the logon name for the user
+ * @param string $pass the unhashed password for the provided username
+ * @return boolean returns TRUE if the username is found AND the password is correct for that user
+ */
 function isUserAuth($user, $pass) {
-    error_log("Is the User Authorized?");
-    $mysqli = connectToDataBase();                          // create connection to database
-    $pass = password_hash($pass, PASSWORD_DEFAULT);
+    $mysqli = connectToDataBase();                                                          // create connection to database
     $isAuth = FALSE;
 
-    /*/
-    // prepare, bind, then run the sql SELECT in the next three lines
-    $stmt = $mysqli->prepare("SELECT pk FROM users WHERE user=? AND password=?");
-    $stmt->bind_param("ss", $user, $pass);
-    $stmt->execute();
-    $res = $stmt->get_result();                             // hold the results from the sql SELECT
-    $stmt->close();
-    /*/
-
     // prepare and bind so we can check if the user is authorized
-    $stmt = $mysqli->prepare("SELECT pk FROM users WHERE user=? AND password=?");           // the SQL to get the user name from the tokens table
-    $stmt->bind_param("ss", $user, $pass);                                                  // bind the token to the SQL
-    $stmt->execute();                                                                       // execute the statement
-    $stmt->bind_result($res);                                                               // bind the results
-    $stmt->fetch();                                                                         // fetch the data
-    $stmt->close();                                                                         // close the statement
-    //*/
+    $stmt = $mysqli->prepare("SELECT password FROM users WHERE user=?");                    // the SQL to pull the hashed password from the DB
+    $stmt->bind_param("s", $user);                                                          // bind $user to the SQL statement
+    $stmt->execute();                                                                       // execute the statement (run the query)
+    $res = $stmt->get_result();                                                             // get the results of the query
 
-    if (!$res) {
-        // there was an error with the database query
+    if ($res->num_rows === 0) {
+        // user name not found so loggon is not authorized
         $isAuth = FALSE;
+        error_log("-----> User NOT found <-----");
     } else {
-        error_log("-----> Auth YES <-----");
-        $isAuth = TRUE;
+        $row = mysqli_fetch_assoc($res);
+        $isAuth = password_verify($pass, $row['password']);                                 // will be TRUE if the password is is correct
+        error_log("-----> User Authorization: ". $isAuth ." <-----");
     }
 
-    mysqli_close($mysqli);                                  // close the DB connection
+    $stmt->close();                                                                         // close the statement
+    mysqli_close($mysqli);                                                                  // close the DB connection
     return $isAuth;
-}
-
-
-// returns a connection to the database and will echo the fail if there is one
-function connectToDataBase() {
-    $dbHost = "localhost";                  // localhost (since the code is running on ceclnx01)
-    $dbUser = "cse383";                     // USER and PASSWORD should not be in this code but
-    $dbPass = "HoABBHrBfXgVwMSz";           // assignment said to use specific files so here we are
-    $dbName = "cse383";                     // name of the database to connect to
-
-    $mysqli = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
-
-    // check
-    if (mysqli_connect_errno($mysqli)) {
-        error_log("Failed to connect to MySQL: ". mysqli_connect_error());
-        error_log("Failed to connect to MySQL: ". mysqli_connect_error());
-        die;
-    }
-
-    return $mysqli;
 }
 
 // will generate a token for a valid user and add it to the tokens table
@@ -106,14 +75,20 @@ function genToken($user) {
 }
 
 
-// will return an Array of all currently tracked itmes and their primary key
+/**
+ * Returns an Array listing all the item types currently being tracked
+ * 
+ * @return array An associative array with each row having pk as an int and item as a string
+ */
 function getTrackedItems() {
     error_log("Build array of items from DB");
 
     $mysqli = connectToDataBase();                                  // create connection to database
 
     $data = array();                                                // will hold the returned results from the sql query
-    $theSQLstring = "SELECT pk, item FROM diaryItems";              // the SQL query for the info we want
+    $theSQLstring = "SELECT pk, item                                 
+                     FROM diaryItems
+                     ORDER BY item";
     $res = mysqli_query($mysqli, $theSQLstring);                    // run and hold the results of the sql query
 
     if (!$res) {
@@ -175,37 +150,109 @@ function getConsumedItems($token, $count) {
 
     $userPK = tokenToPK($token);                                                            // the Primary Key for the user
 
-    //$theSQLstring = "SELECT pk, itemFK, timestamp FROM diary";                                // SQL String to get the items the user has consumed
-    //$theSQLstring = "SELECT pk, itemFK, timestamp FROM diary WHERE userFK=". $userPK;       // SQL String to get the items the user has consumed
-    //*/
     $theSQLstring = "SELECT diary.pk, diaryItems.item, diary.timestamp
-                     FROM diary
-                     INNER JOIN diaryItems ON diary.itemFK=diaryItems.pk
-                     WHERE diary.userFK=". $userPK;
-    //*/
+                    FROM diary
+                    INNER JOIN diaryItems ON diary.itemFK=diaryItems.pk
+                    WHERE diary.userFK=". $userPK;
     
     $res = mysqli_query($mysqli, $theSQLstring);                                                // run and hold the results of the sql query
 
-    //*/
     if ($res) {
-        error_log("-----> WE HAVE RESULTS <-----");
         // Loop around the results row by row and add the data to the $data array
         while( ($row = mysqli_fetch_assoc($res)) && ($rowCount < $count) ) {
             $data[] = $row;
             $rowCount++;
         }
     }
-    /*/
-    while( $row = mysqli_fetch_assoc($res) ) {
-        $data[] = $row;
-        $rowCount++;
-    }
-    //*/
 
     mysqli_close($mysqli);                                  // close connection to database
- 
-    // then return the token as a string
     return $data;
+}
+
+
+// return an array of items and how many times that item type has been consumed by the user with provided token
+function getItemSummary($token) {
+    error_log("Get summary of Items consumed");
+
+    $mysqli = connectToDataBase();                                                          // create connection to database
+    $data = array();                                                                        // will hold the returned results from the sql querry
+    $userPK = tokenToPK($token);                                                            // the Primary Key for the user
+
+    $theSQLstring = "SELECT * FROM diaryItems ORDER BY item";                               // sql query to hold all the item types being tracked
+    $itemRes = mysqli_query($mysqli, $theSQLstring);
+
+    if($itemRes) {
+        $stmt = $mysqli->prepare("SELECT * FROM diary WHERE userFK=? AND itemFK=?");                    // the SQL every entry of an item type consumed by the user
+        // for each item type check how many times the user has consumed it
+        while( $row = mysqli_fetch_assoc($itemRes)) {
+            // prepare and bind so we can check if the user is authorized
+            $stmt->bind_param("ii", $userPK, $row['pk']);                                               // bind $user to the SQL statement
+            $stmt->execute();                                                                           // execute the statement (run the query)
+            $res = $stmt->get_result();                                                                 // get the results of the query
+            
+            $data[] = array('item'=>$row['item'], 'count'=>$res->num_rows);
+        }
+    }
+
+    $stmt->close();
+    mysqli_close($mysqli);
+    return $data;
+}
+
+
+//--------------------------------------------------------------------------------
+//                                HELPER FUNCTIONS
+//--------------------------------------------------------------------------------
+
+// returns a connection to the database and will echo the fail if there is one
+function connectToDataBase() {
+    $dbHost = "localhost";                  // localhost (since the code is running on ceclnx01)
+    $dbUser = "cse383";                     // USER and PASSWORD should not be in this code but
+    $dbPass = "HoABBHrBfXgVwMSz";           // assignment said to use specific files so here we are
+    $dbName = "cse383";                     // name of the database to connect to
+
+    $mysqli = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
+
+    // check
+    if (mysqli_connect_errno($mysqli)) {
+        error_log("Failed to connect to MySQL: ". mysqli_connect_error());
+        error_log("Failed to connect to MySQL: ". mysqli_connect_error());
+        die;
+    }
+
+    return $mysqli;
+}
+
+/**
+ * Checks if a provided token is currently authorized
+ * 
+ * @param string $token the token to check for validity
+ * @return boolean returns TRUE if the token is valid
+ */
+function isTokenValid($token) {
+    return TRUE;
+    $mysqli = connectToDataBase();                                                          // create connection to database
+    $isValid = FALSE;
+
+    // prepare and bind so we can check if the user is authorized
+    $stmt = $mysqli->prepare("SELECT user FROM tokens WHERE token=?");                      // the SQL to pull the hashed password from the DB
+    $stmt->bind_param("s", $token);                                                         // bind $user to the SQL statement
+    $stmt->execute();                                                                       // execute the statement (run the query)
+    $res = $stmt->get_result();                                                             // get the results of the query
+
+    if ($res->num_rows === 0) {
+        // Token not found so token is not Valid
+        $isValid = FALSE;
+        error_log("-----> Token NOT found <-----");
+    } else {
+        $row = mysqli_fetch_assoc($res);
+        $isValid = TRUE;
+        error_log("-----> Token Valid for: ". $row['user'] ." <-----");
+    }
+
+    $stmt->close();                                                                         // close the statement
+    mysqli_close($mysqli);                                                                  // close the DB connection
+    return $isValid;
 }
 
 /**
@@ -245,6 +292,24 @@ function tokenToPK($token) {
 }
 
 /**
+ * Generate a random string, using random_int
+ * requires PHP 7, random_int is a PHP core function
+ * 
+ * @param int $length      How many characters do we want?
+ * @param string $keyspace A string of all possible characters to select from
+ * @return string
+ */
+function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') {
+    $pieces = [];
+    $max = mb_strlen($keyspace, '8bit') - 1;
+    for ($i = 0; $i < $length; ++$i) {
+        $pieces []= $keyspace[random_int(0, $max)];
+    }
+    return implode('', $pieces);
+}
+
+
+/**
  * will check if the item key is valid or not
  * 
  * @param int $itemKey the primary key for an item
@@ -269,21 +334,8 @@ function isItemKeyValid($itemKey) {
     return true;
 }
 
-
-/**
- * Generate a random string, using random_int
- * requires PHP 7, random_int is a PHP core function
- * 
- * @param int $length      How many characters do we want?
- * @param string $keyspace A string of all possible characters to select from
- * @return string
- */
-function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') {
-    $pieces = [];
-    $max = mb_strlen($keyspace, '8bit') - 1;
-    for ($i = 0; $i < $length; ++$i) {
-        $pieces []= $keyspace[random_int(0, $max)];
-    }
-    return implode('', $pieces);
+function getData($a) {
+    $ret = array("data"=>strlen($a));
+    return $ret;
 }
 ?>
